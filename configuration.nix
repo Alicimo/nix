@@ -2,25 +2,47 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
-
+{ config, pkgs, lib, ... }:
 {
+  nixpkgs.overlays = [ (final: prev: { dashy = prev.callPackage overlays/dashy.nix prev; } ) ];
+
   imports =
-    [ 
+    [
       ./hardware-configuration.nix
       ./vim.nix
+      modules/vars.nix
       services/samba.nix
       services/jellyfin.nix
       services/nextcloud.nix
       services/adguard.nix
+      services/grafana.nix
+      services/prometheus.nix
+      services/fronius.nix
+      services/smokeping.nix
+      services/vaultwarden.nix
+      services/dashy.nix
+      services/librespeed.nix
+      services/libation.nix
+      services/audiobookshelf.nix
+      services/freshrss.nix
+      services/vscode_server.nix
+      services/photoview.nix
+      services/whoogle.nix
+      services/duplicati.nix
+#      services/home_assistant.nix
     ];
+
+  services.globalVars.dataDir = "/mnt/data";
+  services.globalVars.domain = "alistair-martin.com";
+
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
   networking = {
-    hostName = "nixos"; # Define your hostname.
+    hostName = "tiefenbacher";
+    domain = "home";
     firewall.enable = false;
     networkmanager.enable = true;
   };
@@ -71,36 +93,46 @@
     tailscale
     unzip
     wget
+    lsof
+    dig
   ];
 
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-  services.tailscale.enable = true;
+  services.tailscale = {
+    enable = true;
+    useRoutingFeatures = "server";
+  };
 
-  # Enable Docker
+  # Containers
   virtualisation = {
     docker = {
       enable = true;
-      autoPrune = {
-        enable = true;
-        dates = "weekly";
-      };
+      autoPrune.enable = true;
+    };
+    podman = {
+      enable = true;
+      autoPrune.enable = true;
     };
   };
 
   services.nginx = {
     enable = true;
     recommendedProxySettings = true;
-    virtualHosts = {
-      "tiefenbacher.home".locations."/".proxyPass = "http://127.0.0.1:4000";
-      "adguard.tiefenbacher.home".locations."/".proxyPass = "http://127.0.0.1:999";
-      "jellyfin.tiefenbacher.home".locations."/".proxyPass = "http://127.0.0.1:8096";
-      "smokeping.tiefenbacher.home".locations."/".proxyPass = "http://127.0.0.1:888";
-      "speed.tiefenbacher.home".locations."/".proxyPass = "http://127.0.0.1:777";
-      "wiki.tiefenbacher.home".locations."/".proxyPass = "http://127.0.0.1:6875";
-      "portainer.tiefenbacher.home".locations."/".proxyPass = "http://127.0.0.1:9000";
+    recommendedTlsSettings = true;
+    recommendedOptimisation = true;
+    recommendedGzipSettings = true;
+  };
+
+  security.acme = {
+    acceptTerms = true;
+    defaults = {
+      email = "contact@alistair-martin.com";
+      group = "nginx";
+      dnsProvider = "cloudflare";
+      credentialsFile = "/etc/nixos/secrets/cloudflare.env";
     };
   };
 

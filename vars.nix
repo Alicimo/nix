@@ -1,0 +1,3 @@
+{
+    dataDir = "/mnt/data";
+}
