@@ -20,7 +20,7 @@
       services/fronius.nix
       services/smokeping.nix
       services/vaultwarden.nix
-      services/dashy.nix
+      # services/dashy.nix
       services/librespeed.nix
       services/libation.nix
       services/audiobookshelf.nix
