@@ -29,7 +29,7 @@
       services/photoview.nix
       services/whoogle.nix
       services/duplicati.nix
-#      services/home_assistant.nix
+      services/home_assistant.nix
     ];
 
   services.globalVars.dataDir = "/mnt/data";
@@ -39,6 +39,9 @@
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+
+  system.autoUpgrade.enable  = true;
+  system.autoUpgrade.allowReboot  = true;
 
   networking = {
     hostName = "tiefenbacher";

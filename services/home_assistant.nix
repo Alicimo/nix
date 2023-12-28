@@ -1,33 +1,59 @@
 { config, ... }:
-let
-    dir="/mnt/data/containers/home_assistant";
-    port="8123"; # You can alter within HA config. This is default.
-in {  
-    virtualisation.oci-containers = {
-    containers.homeassistant = {
-      volumes = [ "${dir}:/config" ];
-      environment.TZ = "${config.time.timeZone}";
-      image = "ghcr.io/home-assistant/home-assistant:stable";
-      extraOptions = [ 
-        "--privileged"
-        "--network=host" 
-        # "--device=/dev/ttyACM0:/dev/ttyACM0"  # TODO: Install Combee USB here
-      ]; 
-    };
-  };
+{
+    services.home-assistant = {
+        enable = true;
+        extraComponents = [
+            "met"
+            "fronius"
+            "tradfri"
+            "tplink"
+            "roomba"
+            "brother"
+            "apple_tv"
+            "radio_browser"
+            "zha"
+            "mobile_app"
+            "hassio"
+        ];
+        extraPackages = python3Packages: with python3Packages; [
+            pyatv
+            aiohomekit
+            getmac
+            python-otbr-api
+            pyipp
+        ];
+        config = {
 
-  services.nginx.virtualHosts."hass.tiefenbacher.home" = {
-    extraConfig = ''
-      proxy_buffering off;
-    '';
-    locations."/".extraConfig = ''
-      proxy_pass http://127.0.0.1:8123;
-      proxy_set_header Host $host;
-      proxy_redirect http:// https://;
-      proxy_http_version 1.1;
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header Upgrade $http_upgrade;
-      proxy_set_header Connection $connection_upgrade;
-    '';
-  };
+            default_config = {};
+            http = {
+                server_host = "::1";
+                trusted_proxies = [ "::1" ];
+                use_x_forwarded_for = true;
+            };
+            "automation manual" = [];
+            "automation ui" = "!include automations.yaml";
+            "scene manual" = [];
+            "scene ui" = "!include scenes.yaml";
+        };
+    };
+
+    systemd.tmpfiles.rules = [
+        "f ${config.services.home-assistant.configDir}/automations.yaml 0755 hass hass"
+        "f ${config.services.home-assistant.configDir}/scenes.yaml 0755 hass hass"
+    ];
+
+    nixpkgs.config.permittedInsecurePackages = [ "openssl-1.1.1w" ];
+
+    services.nginx.virtualHosts."hass.${config.services.globalVars.domain}" = {
+        forceSSL = true;
+        enableACME = true;
+        acmeRoot = null;
+        extraConfig = ''
+        proxy_buffering off;
+        '';
+        locations."/" = {
+            proxyPass = "http://[::1]:8123";
+            proxyWebsockets = true;
+        };
+    };
 }
