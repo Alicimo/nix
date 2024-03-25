@@ -26,10 +26,10 @@
       services/audiobookshelf.nix
       services/freshrss.nix
       services/vscode_server.nix
-      services/photoview.nix
       services/whoogle.nix
       services/duplicati.nix
       services/home_assistant.nix
+      services/paperless.nix
     ];
 
   services.globalVars.dataDir = "/mnt/data";
@@ -83,7 +83,6 @@
   nixpkgs.config.allowUnfree = true;
 
   # List packages installed in system profile. To search, run:
-  # $ nix search wget
   environment.systemPackages = with pkgs; [
     docker-compose
     git
@@ -98,6 +97,12 @@
     wget
     lsof
     dig
+    ffmpeg
+    exiftool
+    nodejs
+    libtensorflow
+    yt-dlp
+    borgbackup
   ];
 
   # List services that you want to enable:

@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 {
     services.home-assistant = {
         enable = true;
@@ -6,14 +6,16 @@
             "met"
             "fronius"
             "tradfri"
-            "tplink"
-            "roomba"
+            # "tplink"
+            # "roomba"
             "brother"
             "apple_tv"
             "radio_browser"
             "zha"
             "mobile_app"
             "hassio"
+            "mqtt"
+            "fire_tv"
         ];
         extraPackages = python3Packages: with python3Packages; [
             pyatv
@@ -21,9 +23,18 @@
             getmac
             python-otbr-api
             pyipp
+            spotipy
+            bellows
+            adb-shell
+            androidtv
+        ];
+        customComponents = [
+             (pkgs.callPackage ../pkgs/home-assistant/midea_ac_lan.nix {})
+             (pkgs.callPackage ../pkgs/home-assistant/home-assistant-tapo.nix {
+                plugp100 = (pkgs.python3Packages.callPackage ../pkgs/python/plugp100.nix {});
+             })
         ];
         config = {
-
             default_config = {};
             http = {
                 server_host = "::1";
