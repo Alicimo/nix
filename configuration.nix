@@ -30,6 +30,7 @@
       services/duplicati.nix
       services/home_assistant.nix
       services/paperless.nix
+      services/stirling.nix
     ];
 
   services.globalVars.dataDir = "/mnt/data";
@@ -142,6 +143,12 @@
       dnsProvider = "cloudflare";
       credentialsFile = "/etc/nixos/secrets/cloudflare.env";
     };
+  };
+
+  nix.optimise.automatic = true;
+  nix.gc = {
+    automatic = true;
+    options = "--delete-older-than 7d";
   };
 
   system.stateVersion = "23.05"; # Did you read the comment?
