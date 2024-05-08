@@ -26,11 +26,13 @@
       services/audiobookshelf.nix
       services/freshrss.nix
       services/vscode_server.nix
+      services/openvscode.nix
       services/whoogle.nix
       services/duplicati.nix
       services/home_assistant.nix
       services/paperless.nix
       services/stirling.nix
+      services/tandoor.nix
     ];
 
   services.globalVars.dataDir = "/mnt/data";
