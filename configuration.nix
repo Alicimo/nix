@@ -20,7 +20,6 @@
       services/fronius.nix
       services/smokeping.nix
       services/vaultwarden.nix
-      # services/dashy.nix
       services/librespeed.nix
       services/libation.nix
       services/audiobookshelf.nix
@@ -33,6 +32,7 @@
       services/paperless.nix
       services/stirling.nix
       services/tandoor.nix
+      services/uptime.nix
     ];
 
   services.globalVars.dataDir = "/mnt/data";
@@ -135,7 +135,12 @@
     recommendedTlsSettings = true;
     recommendedOptimisation = true;
     recommendedGzipSettings = true;
+    virtualHosts."mistake.${config.networking.fqdn}" = {
+      default = true;
+      locations."/".return = "404";
+    };
   };
+
 
   security.acme = {
     acceptTerms = true;
